@@ -24,3 +24,8 @@ class FrequencyFiltering(BaseModel):
 
 class Images(BaseModel):
     images: List[str]
+
+
+class ImageCipher(BaseModel):
+    path: str
+    encode: bool

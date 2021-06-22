@@ -5,7 +5,7 @@ from fastapi import FastAPI
 import uvicorn
 from image_work.manager_image_group import ImageProcessor
 
-from api.models import ColorSpaces, RectanglesCords, FrequencyFiltering, Images
+from api.models import ColorSpaces, RectanglesCords, FrequencyFiltering, Images, Image, ImageCipher
 from api.logger_configuration import get_logger
 
 app = FastAPI()
@@ -90,6 +90,36 @@ async def get_color_ranges():
     """Ну давай, блять, попробуй угадать, что делает этот метод."""
     try:
         return manager.get_color_range
+    except Exception as ex:
+        log_this(ex)
+
+
+@app.post('/api/color_noize')
+async def post_noisy_image(image: Image):
+    """Возврат защумленного изображения, можно регулировать параметр защумления от 0 до 1"""
+    try:
+        manager.load_image(image.path)
+        return manager.noisy_image()
+    except Exception as ex:
+        log_this(ex)
+
+@app.post('/api/pencel')
+async def post_pensel(image: Image):
+    try:
+        manager.load_image_as_gray(image.path)
+        return manager.pensel_generation()
+    except Exception as ex:
+        log_this(ex)
+
+
+@app.post('/api/cipher')
+async def post_cipher(image: ImageCipher):
+    try:
+        manager.load_image(image.path)
+        if image.encode is True:
+            return manager.encode_image()
+        else:
+            return manager.decode_image()
     except Exception as ex:
         log_this(ex)
 

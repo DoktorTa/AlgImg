@@ -1,3 +1,4 @@
+import random
 import cv2
 import numpy as np
 from typing import Tuple
@@ -96,6 +97,12 @@ def _crop_image_to_smaller(img: np.ndarray, len_row: int, column_len: int) -> np
 
 
 def crop_image_to_smaller(image_1: np.ndarray, image_2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Обрезка изображения под наименьшие границы.
+    :param image_1:
+    :param image_2:
+    :return: np.ndarray
+    """
     row1 = len(image_1)
     row2 = len(image_2)
     colonum1 = len(image_1[0])
@@ -118,7 +125,6 @@ def crop_image_to_smaller(image_1: np.ndarray, image_2: np.ndarray) -> Tuple[np.
 
 def add_image_light_pixel_rule(image_1: np.ndarray, image_2: np.ndarray) -> np.ndarray:
     image_1, image_2 = crop_image_to_smaller(image_1, image_2)
-    print(image_1.shape, image_2.shape)
 
     magic = lambda px_1, px_2: np.where(
         0.3 * px_1[0] + 0.59 * px_1[1] + 0.11 * px_1[2] > 0.3 * px_2[0] + 0.59 * px_2[1] + 0.11 * px_2[2],
@@ -140,3 +146,41 @@ def frequency_filtering(image: np.ndarray, filtration_purity=60) -> np.ndarray:
     img_back = np.fft.ifft2(f_ishift)
 
     return np.real(img_back)
+
+
+def noisy_image_processing(image: np.ndarray) -> np.ndarray:
+    """
+    Алгоритм шума есть выбор рандомного значения яркости канала(оси канала) от 0 до его предыдущего значения
+    """
+    for line in image:
+
+        for px in line:
+            px[0] = random.randint(0, px[0])
+            px[1] = random.randint(0, px[1])
+            px[2] = random.randint(0, px[2])
+
+    return image
+
+
+def paint_processing(image: np.ndarray):
+    img = cv2.medianBlur(image, 5)
+    ret, th1 = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+    return th1
+
+
+def encode_image(image: np.ndarray):
+    for line in image:
+        for px in line:
+            if px[0] < 200 and px[1] < 200 and px[2] < 200:
+                px[0], px[1], px[2] = 255, 255, 255
+            else:
+                px[0], px[1], px[2] = 255, 255, 254
+    return image
+
+
+def decode_image(image: np.ndarray):
+    for line in image:
+        for px in line:
+            if px[0] == 255 and px[1] == 255 and px[2] == 254:
+                px[0], px[1], px[2] = 0, 0, 0
+    return image

@@ -1,11 +1,6 @@
-from enum import Enum
-from typing import List, Tuple, Dict
-from matplotlib import pyplot as plt
+from typing import List, Tuple
 
-
-from threading import Thread
 from pathlib import Path
-
 
 import cv2
 
@@ -25,7 +20,7 @@ class ImageProcessor:
                   'GRAY': cv2.COLOR_BGR2GRAY}
 
     color_ranges = {'black': [[0, 0, 0], [10, 10, 10]],
-                    'blue': [[110, 50, 50], [130, 255, 255]]}
+                    'grey': [[110, 50, 50], [130, 255, 255]]}
 
     image_color_space = {}
 
@@ -109,3 +104,19 @@ class ImageProcessor:
     def frequency_filtering(self, filtration_purity: int):
         image_with_filter = image_work.frequency_filtering(self.image.image, filtration_purity)
         return self.image.save_image_plt(image_with_filter, f'pur{str(filtration_purity)}')
+
+    def noisy_image(self):
+        image = image_work.noisy_image_processing(self.image.image)
+        return self.image.save_image_cv2(image, 'Noisy')
+
+    def pensel_generation(self):
+        image = image_work.paint_processing(self.image.image)
+        return self.image.save_image_cv2(image, 'Pensel')
+
+    def encode_image(self):
+        image = image_work.encode_image(self.image.image)
+        return self.image.save_image_cv2(image, 'Encode')
+
+    def decode_image(self):
+        image = image_work.decode_image(self.image.image)
+        return self.image.save_image_cv2(image, 'Decode')
